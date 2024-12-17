@@ -1,102 +1,124 @@
 # Demo Template
 
-스프링 부트 기반의 멀티모듈 템플릿. 실제 프로젝트에서 자주 사용되는 구조를 최소한으로 구성했습니다.
+스프링 부트 기반의 멀티모듈 템플릿입니다. 도메인 중심의 설계를 지향하면서도 실용성을 갖춘 최소한의 구조를 제공합니다.
 
 ## 프로젝트 구조
 
 ```
 root/
-├── api/                # API 모듈 (웹 레이어)
+├── api/                # API 모듈 (웹 레이어, 실행 모듈)
 ├── core/
 │   ├── base/          # 공통 유틸리티
-│   └── domain/        # 순수한 도메인 로직
+│   └── domain/        # 순수한 도메인 로직, 인터페이스 정의
 └── storage/
-    └── rdb/           # DB 구현체
+    └── rdb/           # Repository 구현체
 ```
 
-## 주요 설계 결정
+## 핵심 설계 원칙
 
-### 1. 모듈 구성
-
-- `api`: 실행 가능한 애플리케이션. web 의존성만 가지고 있음
-- `core/base`: 공통 유틸리티. 다른 모듈들의 기반
-- `core/domain`: 순수한 비즈니스 로직. JPA 어노테이션만 사용
-- `storage/rdb`: 실제 DB 구현체. JPA 구현체를 여기서만 포함
-
-### 2. 의존성 설계
+### 1. 도메인 중심 설계
 
 ```
-api -> core/domain
-    -> core/base
-core/domain -> core/base
-storage/rdb -> core/domain
-           -> core/base
+api -----> domain <----- base
+            ↑
+            |
+       storage/rdb
 ```
 
-### 3. 모듈별 gradle 설정
+- 도메인이 프로젝트의 중심
+- 도메인은 인터페이스를 통해 인프라스트럭처와 분리
+- 구현체는 도메인의 인터페이스에 의존
+
+### 2. 모듈별 역할
 
 #### api
 
+- 애플리케이션 진입점
+- 웹 레이어 담당
+- 실행 가능한 애플리케이션
+
+#### core/domain
+
+- 순수한 도메인 모델
+- Repository 인터페이스 정의
+- 비즈니스 로직 구현
+- JPA 어노테이션만 사용 (구현체 없음)
+
+#### core/base
+
+- 공통 유틸리티
+- 도메인에서 필요한 공통 기능 제공
+
+#### storage/rdb
+
+- Repository 인터페이스 구현
+- JPA 구현체 포함
+- 실제 데이터베이스 연동
+
+### 3. 의존성 관리
+
+#### api/build.gradle
+
 ```gradle
 dependencies {
-    implementation project(':core:base')
+    runtimeOnly(project(":storage:rdb"))    // 런타임에만 필요한 구현체
+    implementation project(':core:base')     // 컴파일타임 의존성
     implementation project(':core:domain')
     implementation 'org.springframework.boot:spring-boot-starter-web'
 }
 ```
 
-#### core/base
-
-```gradle
-dependencies {
-    implementation 'org.springframework:spring-context:6.2.0'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-}
-```
-
-#### core/domain
+#### core/domain/build.gradle
 
 ```gradle
 dependencies {
     implementation project(':core:base')
-    implementation 'org.springframework:spring-context:6.2.0'
-    compileOnly 'jakarta.persistence:jakarta.persistence-api:3.1.0'  // JPA 어노테이션만
+    implementation 'org.springframework:spring-context'
+    compileOnly 'jakarta.persistence:jakarta.persistence-api'  // JPA 어노테이션만
 }
 ```
 
-#### storage/rdb
+#### storage/rdb/build.gradle
 
 ```gradle
 dependencies {
-    implementation project(':core:domain')
+    implementation project(':core:domain')   // 도메인 인터페이스 구현
     implementation project(':core:base')
-    implementation 'org.springframework:spring-context:6.2.0'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'         // DB 드라이버
 }
 ```
 
-## 특징
+## 주요 특징
 
-### 도메인 순수성
+### 1. 도메인 순수성
 
-- domain 모듈은 JPA 어노테이션만 사용하고 실제 구현체는 포함하지 않음
-- 순수한 비즈니스 로직에 집중할 수 있는 구조
+- 도메인 로직이 인프라스트럭처에 의존하지 않음
+- Repository 인터페이스를 통한 느슨한 결합
+- 비즈니스 로직에만 집중 가능한 구조
 
-### 모듈 독립성
+### 2. 런타임 의존성 관리
 
-- 각 모듈은 자신의 역할에 충실한 최소한의 의존성만 포함
-- base 모듈을 통해 공통 관심사 분리
+- 컴파일타임과 런타임 의존성 분리
+- storage 구현체는 런타임에만 주입
+- 스프링의 DI를 활용한 유연한 구현체 관리
 
-### 유연한 확장
+### 3. 확장 용이성
 
-- storage 구현체를 쉽게 교체/확장 가능
-- 새로운 저장소 추가가 용이한 구조
+- 새로운 storage 구현체 추가 용이
+- 도메인 로직 영향 없이 인프라 계층 변경 가능
 
-## 사용법
+## 설정 파일 관리
 
-1. 이 템플릿을 clone
-2. 프로젝트명 변경 (settings.gradle)
-3. 필요한 의존성 추가
-4. 구현 시작
+- api/application.yml: 기본 설정
+- storage/rdb/application-rdb.yml: DB 관련 설정
+- 프로필을 통한 설정 분리
 
-이 템플릿은 실용성에 중점을 두고 설계됐습니다. 복잡한 설정 없이 바로 시작할 수 있으면서도, 확장이 필요할 때 쉽게 추가할 수 있는 구조를 지향합니다.
+## 시작하기
+
+1. 프로젝트 복제
+2. settings.gradle에서 프로젝트명 변경
+3. application.yml 설정 수정
+4. 도메인 로직 구현 시작
+
+이 템플릿은 도메인 주도 설계의 핵심 원칙을 따르면서도, 실용적인 구현이 가능한 구조를 제공합니다.
