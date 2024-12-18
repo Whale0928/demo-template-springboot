@@ -1,22 +1,26 @@
 # Demo Template
 
-스프링 부트 기반의 멀티모듈 템플릿입니다. 도메인 중심의 설계를 지향하면서도 실용성을 갖춘 최소한의 구조를 제공합니다.
+[한글 버전](README.kr.md)
 
-## 프로젝트 구조
+A Spring Boot based multi-module template project.
+
+This template provides a basic structure that follows domain-driven design while maintaining practicality.
+
+## Project Structure
 
 ```
 root/
-├── api/                # API 모듈 (웹 레이어, 실행 모듈)
+├── api/                # API module (web layer, executable module)
 ├── core/
-│   ├── base/          # 공통 유틸리티
-│   └── domain/        # 순수한 도메인 로직, 인터페이스 정의
+│   ├── base/          # Common utilities
+│   └── domain/        # Pure domain logic, interface definitions
 └── storage/
-    └── rdb/           # Repository 구현체
+    └── rdb/           # Repository implementations
 ```
 
-## 핵심 설계 원칙
+## Core Design Principles
 
-### 1. 도메인 중심 설계
+### 1. Domain-Centered Design
 
 ```
 api -----> domain <----- base
@@ -25,44 +29,44 @@ api -----> domain <----- base
        storage/rdb
 ```
 
-- 도메인이 프로젝트의 중심
-- 도메인은 인터페이스를 통해 인프라스트럭처와 분리
-- 구현체는 도메인의 인터페이스에 의존
+- Domain is the center of the project
+- Domain is separated from infrastructure through interfaces
+- Implementations depend on domain interfaces
 
-### 2. 모듈별 역할
+### 2. Module Roles
 
 #### api
 
-- 애플리케이션 진입점
-- 웹 레이어 담당
-- 실행 가능한 애플리케이션
+- Application entry point
+- Handles web layer
+- Executable application
 
 #### core/domain
 
-- 순수한 도메인 모델
-- Repository 인터페이스 정의
-- 비즈니스 로직 구현
-- JPA 어노테이션만 사용 (구현체 없음)
+- Pure domain models
+- Repository interface definitions
+- Business logic implementation
+- Uses only JPA annotations (no implementation)
 
 #### core/base
 
-- 공통 유틸리티
-- 도메인에서 필요한 공통 기능 제공
+- Common utilities
+- Provides common functionality needed by domain
 
 #### storage/rdb
 
-- Repository 인터페이스 구현
-- JPA 구현체 포함
-- 실제 데이터베이스 연동
+- Repository interface implementation
+- Includes JPA implementation
+- Actual database integration
 
-### 3. 의존성 관리
+### 3. Dependency Management
 
 #### api/build.gradle
 
 ```gradle
 dependencies {
-    runtimeOnly(project(":storage:rdb"))    // 런타임에만 필요한 구현체
-    implementation project(':core:base')     // 컴파일타임 의존성
+    runtimeOnly(project(":storage:rdb"))    // Implementation needed only at runtime
+    implementation project(':core:base')     // Compile-time dependency
     implementation project(':core:domain')
     implementation 'org.springframework.boot:spring-boot-starter-web'
 }
@@ -74,7 +78,7 @@ dependencies {
 dependencies {
     implementation project(':core:base')
     implementation 'org.springframework:spring-context'
-    compileOnly 'jakarta.persistence:jakarta.persistence-api'  // JPA 어노테이션만
+    compileOnly 'jakarta.persistence:jakarta.persistence-api'  // JPA annotations only
 }
 ```
 
@@ -82,43 +86,37 @@ dependencies {
 
 ```gradle
 dependencies {
-    implementation project(':core:domain')   // 도메인 인터페이스 구현
+    implementation project(':core:domain')   // Implements domain interfaces
     implementation project(':core:base')
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    runtimeOnly 'com.h2database:h2'         // DB 드라이버
+    runtimeOnly 'com.h2database:h2'         // DB driver
 }
 ```
 
-## 주요 특징
+## Key Features
 
-### 1. 도메인 순수성
+### 1. Domain Purity
 
-- 도메인 로직이 인프라스트럭처에 의존하지 않음
-- Repository 인터페이스를 통한 느슨한 결합
-- 비즈니스 로직에만 집중 가능한 구조
+- Domain logic does not depend on infrastructure
+- Loose coupling through Repository interfaces
+- Structure focused on business logic
 
-### 2. 런타임 의존성 관리
+### 2. Runtime Dependency Management
 
-- 컴파일타임과 런타임 의존성 분리
-- storage 구현체는 런타임에만 주입
-- 스프링의 DI를 활용한 유연한 구현체 관리
+- Separation of compile-time and runtime dependencies
+- Storage implementation injected only at runtime
+- Flexible implementation management using Spring DI
 
-### 3. 확장 용이성
+### 3. Easy Extension
 
-- 새로운 storage 구현체 추가 용이
-- 도메인 로직 영향 없이 인프라 계층 변경 가능
+- Easy to add new storage implementations
+- Infrastructure layer can be changed without affecting domain logic
 
-## 설정 파일 관리
+## Configuration File Management
 
-- api/application.yml: 기본 설정
-- storage/rdb/application-rdb.yml: DB 관련 설정
-- 프로필을 통한 설정 분리
+- api/application.yml: Basic configuration
+- storage/rdb/application-rdb.yml: DB related configuration
+- Configuration separation through profiles
 
-## 시작하기
-
-1. 프로젝트 복제
-2. settings.gradle에서 프로젝트명 변경
-3. application.yml 설정 수정
-4. 도메인 로직 구현 시작
-
-이 템플릿은 도메인 주도 설계의 핵심 원칙을 따르면서도, 실용적인 구현이 가능한 구조를 제공합니다.
+This template provides a structure that follows the core principles of domain-driven design while enabling practical
+implementation.
