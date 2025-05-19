@@ -1,5 +1,6 @@
 package app.jpa;
 
+import app.Pair;
 import app.base.Base;
 import app.base.BaseRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
