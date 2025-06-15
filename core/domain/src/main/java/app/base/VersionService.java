@@ -12,4 +12,11 @@ public class VersionService {
         Version version = Version.versionStart();
         return baseRepository.save(version);
     }
+
+    public Version now() {
+        return baseRepository.findAll()
+                .stream()
+                .findFirst()
+                .orElse(Version.versionStart());
+    }
 }
