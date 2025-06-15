@@ -1,9 +1,7 @@
 // storage : rdb ( mysql, h2, postgresql, oracle, mariadb, mssql )
 dependencies {
-    implementation project(':core:domain')
-    
     // Database Drivers
-    runtimeOnly 'com.h2database:h2'
+    implementation 'com.h2database:h2'
     //runtimeOnly 'com.mysql:mysql-connector-j'
     //runtimeOnly 'org.postgresql:postgresql'
     

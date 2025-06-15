@@ -3,7 +3,7 @@ bootJar.enabled = true
 jar.enabled = false
 
 dependencies {
-    runtimeOnly(project(":storage:rdb"))
+    implementation(project(":storage:rdb"))
     implementation project(':core:domain')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
