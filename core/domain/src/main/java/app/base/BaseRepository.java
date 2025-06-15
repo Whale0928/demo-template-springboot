@@ -1,9 +1,6 @@
 package app.base;
 
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BaseRepository {
-    Optional<Base> findById(Long id);
-
-    Base save(Base base);
+public interface BaseRepository extends JpaRepository<Base, Long> {
 }
